@@ -48,12 +48,12 @@ def jouer_coup(pit):
 # --- 2. STYLE ET DESIGN DE L'INTERFACE VERTE ---
 st.markdown("""
 <style>
-    /* Suppression des marges Streamlit et application du fond vert global */
+    /* Application du fond vert global */
     .stApp {
         background: linear-gradient(135deg, #064e3b 0%, #022c22 50%, #065f46 100%) !important;
     }
     
-    /* Conteneur principal */
+    /* Conteneur principal de l'application */
     .main-box {
         text-align: center;
         background: rgba(0, 0, 0, 0.5);
@@ -92,57 +92,74 @@ st.markdown("""
         border: 1px solid #059669;
     }
     
-    /* Plateau de jeu en bois */
+    /* Plateau de jeu en bois traditionnel style Songo creusé */
     .wood-board {
         background: #5c3a21;
         border: 10px solid #362213;
         border-radius: 25px;
-        padding: 20px;
-        box-shadow: inset 0 0 25px rgba(0,0,0,0.9);
-        margin: 15px 0;
+        padding: 25px 20px;
+        box-shadow: inset 0 0 30px rgba(0,0,0,0.95), 0 5px 15px rgba(0,0,0,0.5);
+        margin: 20px 0;
     }
     
-    /* Style personnalisé des boutons de trous Streamlit */
+    /* Transformation des boutons en trous de Songo réalistes */
     div.stButton > button {
-        background: #231408 !important;
+        background: #1c0d04 !important;
         color: #fbbf24 !important;
         font-size: 1.4rem !important;
         font-weight: bold !important;
-        border: 2px solid #362213 !important;
+        border: 3px solid #2b160a !important;
         border-radius: 50% !important;
-        width: 62px !important;
-        height: 62px !important;
+        width: 64px !important;
+        height: 64px !important;
         margin: 0 auto !important;
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-        box-shadow: inset 0 4px 6px rgba(0,0,0,0.6) !important;
-        transition: all 0.15s ease !important;
+        box-shadow: inset 0 6px 12px rgba(0,0,0,0.9), 0 2px 4px rgba(255,255,255,0.05) !important;
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     
+    /* Effet d'illumination verte discrète au survol d'une case jouable */
     div.stButton > button:hover:not([disabled]) {
-        background: #3a220f !important;
+        background: #2b160a !important;
         border-color: #34d399 !important;
-        transform: scale(1.08) !important;
-        box-shadow: 0 0 12px #34d399 !important;
+        transform: scale(1.06) !important;
+        box-shadow: inset 0 4px 8px rgba(0,0,0,0.8), 0 0 15px rgba(52, 211, 153, 0.6) !important;
     }
     
-    /* Bouton Réinitialiser harmonisé en vert */
+    /* Style pour les trous inactifs (pas le tour du joueur) */
+    div.stButton > button:disabled {
+        opacity: 0.4 !important;
+        border-color: #2b160a !important;
+        box-shadow: inset 0 6px 12px rgba(0,0,0,0.9) !important;
+    }
+    
+    /* Centrage parfait et harmonisation du bouton Réinitialiser */
+    .reset-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 25px;
+        margin-bottom: 5px;
+    }
+    
     .reset-container div.stButton > button {
         background: #059669 !important;
         color: white !important;
-        font-size: 1rem !important;
+        font-size: 0.95rem !important;
+        font-weight: bold !important;
         border-radius: 8px !important;
-        width: 100% !important;
-        height: auto !important;
-        padding: 10px 20px !important;
+        width: 240px !important;
+        height: 42px !important;
+        padding: 0 15px !important;
         border: 1px solid #34d399 !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
     }
     
     .reset-container div.stButton > button:hover {
         background: #10b981 !important;
-        box-shadow: 0 0 15px rgba(52, 211, 153, 0.4) !important;
+        box-shadow: 0 0 15px rgba(52, 211, 153, 0.5) !important;
+        transform: translateY(-1px) !important;
     }
     
     .footer-text {
@@ -172,7 +189,7 @@ with st.container():
     </div>
     """, unsafe_allow_html=True)
     
-    # Scores et Message de statut
+    # Section des scores
     col_s1, col_s2 = st.columns(2)
     with col_s1:
         st.metric(label="Joueur 2 (Haut)", value=st.session_state.scores[1])
@@ -181,7 +198,7 @@ with st.container():
         
     st.subheader(st.session_state.message)
     
-    # Structure du plateau en bois avec les boutons natifs intégrés
+    # Début du plateau en bois
     st.markdown('<div class="wood-board">', unsafe_allow_html=True)
     
     # Rangée du Haut (Indices 13 à 7)
@@ -193,7 +210,7 @@ with st.container():
                 jouer_coup(idx)
                 st.rerun()
                 
-    st.markdown('<div style="margin-top: 20px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="margin-top: 24px;"></div>', unsafe_allow_html=True)
     
     # Rangée du Bas (Indices 0 à 6)
     cols_bottom = st.columns(7)
@@ -206,17 +223,15 @@ with st.container():
                 
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # Zone du bouton de réinitialisation (enfermé dans le bloc vert)
+    # Zone de réinitialisation parfaitement centrée
     st.markdown('<div class="reset-container">', unsafe_allow_html=True)
-    col_btn, col_spacer = st.columns([1, 1])
-    with col_btn:
-        if st.button("🔄 Réinitialiser la partie", key="btn_reset_global"):
-            st.session_state.board = [7] * 14
-            st.session_state.scores = [0, 0]
-            st.session_state.tour = 0
-            st.session_state.message = "Partie réinitialisée. Joueur 1 commence !"
-            st.markdown("<script>window.parent.songoStartTime = Date.now();</script>", unsafe_allow_html=True)
-            st.rerun()
+    if st.button("🔄 Réinitialiser la partie", key="btn_reset_global"):
+        st.session_state.board = [7] * 14
+        st.session_state.scores = [0, 0]
+        st.session_state.tour = 0
+        st.session_state.message = "Partie réinitialisée. Joueur 1 commence !"
+        st.markdown("<script>window.parent.songoStartTime = Date.now();</script>", unsafe_allow_html=True)
+        st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
     
     # Signature
