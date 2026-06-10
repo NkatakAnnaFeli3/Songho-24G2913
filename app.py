@@ -45,23 +45,24 @@ def jouer_coup(pit):
     st.session_state.tour = 1 - tour
     st.session_state.message = f"Au tour du Joueur {st.session_state.tour + 1}"
 
-# --- 2. STYLE ET DESIGN DE L'INTERFACE VERTE ---
+# --- 2. STYLE CSS CIBLÉ (ZÉRO DÉBORDEMENT) ---
 st.markdown("""
 <style>
-    /* Application du fond vert global */
+    /* L'arrière-plan global reste sombre et ne déborde plus en vert */
     .stApp {
-        background: linear-gradient(135deg, #064e3b 0%, #022c22 50%, #065f46 100%) !important;
+        background-color: #0f172a !important;
     }
     
-    /* Conteneur principal de l'application */
+    /* SEUL le cadre du jeu (main-box) est en vert émeraude délimité */
     .main-box {
         text-align: center;
-        background: rgba(0, 0, 0, 0.5);
-        padding: 25px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-        border: 1px solid rgba(255,255,255,0.1);
-        margin-top: 10px;
+        background: linear-gradient(135deg, #064e3b 0%, #022c22 50%, #065f46 100%) !important;
+        padding: 30px 25px;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+        border: 2px solid rgba(52, 211, 153, 0.2);
+        max-width: 650px;
+        margin: 20px auto;
     }
     
     .header-area {
@@ -70,7 +71,7 @@ st.markdown("""
         align-items: center;
         margin-bottom: 20px;
         border-bottom: 1px solid rgba(255,255,255,0.1);
-        padding-bottom: 10px;
+        padding-bottom: 12px;
     }
     
     .game-title {
@@ -92,7 +93,7 @@ st.markdown("""
         border: 1px solid #059669;
     }
     
-    /* Plateau de jeu en bois traditionnel style Songo creusé */
+    /* Plateau en bois traditionnel */
     .wood-board {
         background: #5c3a21;
         border: 10px solid #362213;
@@ -102,7 +103,7 @@ st.markdown("""
         margin: 20px 0;
     }
     
-    /* Transformation des boutons en trous de Songo réalistes */
+    /* Trous de Songo réalistes */
     div.stButton > button {
         background: #1c0d04 !important;
         color: #fbbf24 !important;
@@ -116,11 +117,10 @@ st.markdown("""
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-        box-shadow: inset 0 6px 12px rgba(0,0,0,0.9), 0 2px 4px rgba(255,255,255,0.05) !important;
-        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: inset 0 6px 12px rgba(0,0,0,0.9) !important;
+        transition: all 0.15s ease !important;
     }
     
-    /* Effet d'illumination verte discrète au survol d'une case jouable */
     div.stButton > button:hover:not([disabled]) {
         background: #2b160a !important;
         border-color: #34d399 !important;
@@ -128,42 +128,39 @@ st.markdown("""
         box-shadow: inset 0 4px 8px rgba(0,0,0,0.8), 0 0 15px rgba(52, 211, 153, 0.6) !important;
     }
     
-    /* Style pour les trous inactifs (pas le tour du joueur) */
     div.stButton > button:disabled {
         opacity: 0.4 !important;
         border-color: #2b160a !important;
-        box-shadow: inset 0 6px 12px rgba(0,0,0,0.9) !important;
     }
-    
-    /* Centrage parfait et harmonisation du bouton Réinitialiser */
-    .reset-container {
+
+    /* Le bouton réinitialiser en forme de carré strict (sans arrondis) */
+    .reset-zone {
         display: flex;
         justify-content: center;
         margin-top: 25px;
         margin-bottom: 5px;
     }
     
-    .reset-container div.stButton > button {
-        background: #059669 !important;
+    .reset-zone div.stButton > button {
+        background: #059669 !important; /* Couleur verte harmonisée */
         color: white !important;
         font-size: 0.95rem !important;
         font-weight: bold !important;
-        border-radius: 8px !important;
-        width: 240px !important;
-        height: 42px !important;
-        padding: 0 15px !important;
+        border-radius: 0px !important; /* Carré strict, pas d'arrondi sur les côtés */
+        width: 250px !important;
+        height: 44px !important;
         border: 1px solid #34d399 !important;
         box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
     }
     
-    .reset-container div.stButton > button:hover {
+    .reset-zone div.stButton > button:hover {
         background: #10b981 !important;
         box-shadow: 0 0 15px rgba(52, 211, 153, 0.5) !important;
         transform: translateY(-1px) !important;
     }
     
     .footer-text {
-        margin-top: 20px;
+        margin-top: 25px;
         font-size: 0.85rem;
         color: #cbd5e1;
         font-style: italic;
@@ -177,11 +174,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. AFFICHAGE DES ÉLÉMENTS DE L'INTERFACE ---
+# --- 3. STRUCTURE DE L'INTERFACE DE JEU ---
 with st.container():
     st.markdown('<div class="main-box">', unsafe_allow_html=True)
     
-    # En-tête avec Titre et Chronomètre
+    # En-tête
     st.markdown(f"""
     <div class="header-area">
         <div class="game-title">🎴 Songo Master</div>
@@ -189,7 +186,7 @@ with st.container():
     </div>
     """, unsafe_allow_html=True)
     
-    # Section des scores
+    # Scores
     col_s1, col_s2 = st.columns(2)
     with col_s1:
         st.metric(label="Joueur 2 (Haut)", value=st.session_state.scores[1])
@@ -198,10 +195,9 @@ with st.container():
         
     st.subheader(st.session_state.message)
     
-    # Début du plateau en bois
+    # Plateau
     st.markdown('<div class="wood-board">', unsafe_allow_html=True)
     
-    # Rangée du Haut (Indices 13 à 7)
     cols_top = st.columns(7)
     for i, idx in enumerate(range(13, 6, -1)):
         with cols_top[i]:
@@ -212,7 +208,6 @@ with st.container():
                 
     st.markdown('<div style="margin-top: 24px;"></div>', unsafe_allow_html=True)
     
-    # Rangée du Bas (Indices 0 à 6)
     cols_bottom = st.columns(7)
     for idx in range(0, 7):
         with cols_bottom[idx]:
@@ -223,8 +218,8 @@ with st.container():
                 
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # Zone de réinitialisation parfaitement centrée
-    st.markdown('<div class="reset-container">', unsafe_allow_html=True)
+    # Bouton réinitialiser Carré centré
+    st.markdown('<div class="reset-zone">', unsafe_allow_html=True)
     if st.button("🔄 Réinitialiser la partie", key="btn_reset_global"):
         st.session_state.board = [7] * 14
         st.session_state.scores = [0, 0]
@@ -234,11 +229,11 @@ with st.container():
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # Signature
+    # Signature Anna
     st.markdown('<div class="footer-text">Développé avec passion par <span>Anna</span></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# Script JavaScript autonome pour animer le chronomètre
+# Chronomètre
 components.html("""
 <script>
     if (!window.parent.songoStartTime) window.parent.songoStartTime = Date.now();
